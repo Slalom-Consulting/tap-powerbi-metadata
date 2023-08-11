@@ -467,3 +467,123 @@ class ActivityEventsStream(TapPowerBIMetadataStream):
         Property("WorkSpaceName", StringType),
         Property("WorkspacesSemicolonDelimitedList", StringType),
     ).to_dict()
+
+class AppsStream(TapPowerBIMetadataStream):
+    name = "Apps"
+    path = "/admin/apps"
+    primary_keys = ["Id"]
+    replication_key = "lastUpdate"
+    schema = PropertiesList(
+        Property("Id", StringType),
+        Property("Description", StringType),
+        Property("LastUpdate", StringType),
+        Property("Name", StringType),
+        Property("PublishedBy", StringType),
+        Property("WorkspaceId", StringType),
+        Property("ArtifactObjectId", StringType),
+    ).to_dict()
+
+class GroupsStream(TapPowerBIMetadataStream):
+    name = "Groups"
+    path = "/admin/groups"
+    primary_keys = ["Id"]
+    replication_key = "lastUpdate"
+    schema = PropertiesList(
+        Property("Id", StringType),
+        Property("Description", StringType),
+        Property("LastUpdate", StringType),
+        Property("Name", StringType),
+        Property("PublishedBy", StringType),
+        Property("WorkspaceId", StringType),
+        Property("ArtifactObjectId", StringType),
+    ).to_dict()
+
+class GroupUsersStream(TapPowerBIMetadataStream):
+    name = "GroupUser"
+    path = "/admin/groups???"
+    primary_keys = ["identifier"]
+    replication_key = "???"
+    schema = PropertiesList(
+        Property("DisplayName", StringType),
+        Property("EmailAddress", StringType),
+        Property("GraphId", StringType),
+        Property("GroupUserAccessRight", StringType),
+        Property("Identifier", StringType),
+        Property("PrincipalType", StringType),
+        Property("Profile", StringType),
+        Property("UserType", StringType),
+    ).to_dict()
+
+class DatasetUsersStream(TapPowerBIMetadataStream):
+    name = "DatasetUsers"
+    path = "/admin/datasets???"
+    primary_keys = ["identifier"]
+    replication_key = "???"
+    schema = PropertiesList(
+        Property("DatasetUserAccessRight", StringType),
+        Property("DisplayName", StringType),
+        Property("EmailAddress", StringType),
+        Property("GraphId", StringType),
+        Property("Identifier", StringType),
+        Property("PrincipalType", StringType),
+        Property("Profile", StringType),
+        Property("UserType", StringType),
+    ).to_dict()
+
+class DatasetStream(TapPowerBIMetadataStream):
+    name = "Dataset"
+    path = "/admin/datasets"
+    primary_keys = ["Id"]
+    replication_key = "???"
+    schema = PropertiesList(
+        Property("ContentProviderType", StringType),
+        Property("CreateReportEmbedURL", StringType),
+        Property("CreatedDate", StringType),
+        Property("Encryption", StringType),
+        Property("IsEffectiveIdentityRequired", StringType),
+        Property("IsEffectiveIdentityRolesRequired", StringType),
+        Property("IsInPlaceSharingEnabled", StringType),
+        Property("IsOnPremGatewayRequired", StringType),
+        Property("IsRefreshable", StringType),
+        Property("QnaEmbedURL", StringType),
+        Property("AddRowsAPIEnabled", StringType),
+        Property("ConfiguredBy", StringType),
+        Property("Description", StringType),
+        Property("Id", StringType),
+        Property("Name", StringType),
+        Property("QueryScaleOutSettings", StringType),
+        Property("TargetStorageMode", StringType),
+        Property("UpstreamDataFlows", StringType),
+        Property("Users", StringType),
+        Property("WebUrl", StringType),
+        Property("WorkspaceId", StringType),
+    ).to_dict()
+
+class DatasourcesStream(TapPowerBIMetadataStream):
+    name = "Datasources"
+    path = "/admin/datasets/?????"
+    primary_keys = ["Id"]
+    replication_key = "???"
+    schema = PropertiesList(
+        Property(
+            "ConnectionDetails", 
+            ObjectType(
+                Property("Account", StringType),
+                Property("ClassInfo", StringType),
+                Property("Database", StringType),
+                Property("Domain", StringType),
+                Property("EmailAddress", StringType),
+                Property("Kind", StringType),
+                Property("LoginServer", StringType),
+                Property("Path", StringType),
+                Property("Server", StringType),
+                Property("Url", StringType),
+            )
+            ),
+        Property("ConnectionString", StringType),
+        Property("DatasourceId", StringType),
+        Property("DatasourceType", StringType),
+        Property("GatewayId", StringType),
+        Property("Name", StringType),
+
+    ).to_dict()
