@@ -480,7 +480,27 @@ class AppsStream(TapPowerBIMetadataStream):
         Property("Name", StringType),
         Property("PublishedBy", StringType),
         Property("WorkspaceId", StringType),
-        Property("ArtifactObjectId", StringType),
+    ).to_dict()
+
+class ReportsStream(TapPowerBIMetadataStream):
+    name = "Reports"
+    path = "/admin/reports"
+    primary_keys = ["Id"]
+    replication_key = "lastUpdate"
+    schema = PropertiesList(
+        Property("Id", StringType),
+        Property("AppId", StringType),
+        Property("CreatedBy", StringType),
+        Property("CreatedDateTime", StringType),
+        Property("DatasetId", StringType),
+        Property("Description", StringType),
+        Property("EmbedUrl", StringType),
+        Property("ModifiedBy", StringType),
+        Property("ModifiedDateTime", StringType),
+        Property("Name", StringType),
+        Property("ReportType", StringType),
+        Property("WebUrl", StringType),
+        Property("WorkspaceId", StringType),
     ).to_dict()
 
 class GroupsStream(TapPowerBIMetadataStream):
@@ -498,38 +518,6 @@ class GroupsStream(TapPowerBIMetadataStream):
         Property("ArtifactObjectId", StringType),
     ).to_dict()
 
-class GroupUsersStream(TapPowerBIMetadataStream):
-    name = "GroupUser"
-    path = "/admin/groups???"
-    primary_keys = ["identifier"]
-    replication_key = "???"
-    schema = PropertiesList(
-        Property("DisplayName", StringType),
-        Property("EmailAddress", StringType),
-        Property("GraphId", StringType),
-        Property("GroupUserAccessRight", StringType),
-        Property("Identifier", StringType),
-        Property("PrincipalType", StringType),
-        Property("Profile", StringType),
-        Property("UserType", StringType),
-    ).to_dict()
-
-class DatasetUsersStream(TapPowerBIMetadataStream):
-    name = "DatasetUsers"
-    path = "/admin/datasets???"
-    primary_keys = ["identifier"]
-    replication_key = "???"
-    schema = PropertiesList(
-        Property("DatasetUserAccessRight", StringType),
-        Property("DisplayName", StringType),
-        Property("EmailAddress", StringType),
-        Property("GraphId", StringType),
-        Property("Identifier", StringType),
-        Property("PrincipalType", StringType),
-        Property("Profile", StringType),
-        Property("UserType", StringType),
-    ).to_dict()
-
 class DatasetStream(TapPowerBIMetadataStream):
     name = "Dataset"
     path = "/admin/datasets"
@@ -540,50 +528,32 @@ class DatasetStream(TapPowerBIMetadataStream):
         Property("CreateReportEmbedURL", StringType),
         Property("CreatedDate", StringType),
         Property("Encryption", StringType),
-        Property("IsEffectiveIdentityRequired", StringType),
-        Property("IsEffectiveIdentityRolesRequired", StringType),
-        Property("IsInPlaceSharingEnabled", StringType),
-        Property("IsOnPremGatewayRequired", StringType),
-        Property("IsRefreshable", StringType),
+        Property("IsEffectiveIdentityRequired", BooleanType),
+        Property("IsEffectiveIdentityRolesRequired", BooleanType),
+        Property("IsInPlaceSharingEnabled", BooleanType),
+        Property("IsOnPremGatewayRequired", BooleanType),
+        Property("IsRefreshable", BooleanType),
         Property("QnaEmbedURL", StringType),
-        Property("AddRowsAPIEnabled", StringType),
+        Property("AddRowsApiEnabled", BooleanType),
         Property("ConfiguredBy", StringType),
         Property("Description", StringType),
         Property("Id", StringType),
         Property("Name", StringType),
-        Property("QueryScaleOutSettings", StringType),
+        Property(
+            "QueryScaleOutSettings", 
+            ObjectType(
+                Property("AutoSyncReadOnlyReplicas", BooleanType),
+                Property("maxReadOnlyReplicas", IntegerType),
+            )
+        ),
         Property("TargetStorageMode", StringType),
-        Property("UpstreamDataFlows", StringType),
-        Property("Users", StringType),
+        Property(
+            "UpstreamDataflows",
+            ObjectType(
+                Property("GroupID", StringType),
+                Property("TargetDataflowId", StringType)
+            )
+        )
         Property("WebUrl", StringType),
         Property("WorkspaceId", StringType),
-    ).to_dict()
-
-class DatasourcesStream(TapPowerBIMetadataStream):
-    name = "Datasources"
-    path = "/admin/datasets/?????"
-    primary_keys = ["Id"]
-    replication_key = "???"
-    schema = PropertiesList(
-        Property(
-            "ConnectionDetails", 
-            ObjectType(
-                Property("Account", StringType),
-                Property("ClassInfo", StringType),
-                Property("Database", StringType),
-                Property("Domain", StringType),
-                Property("EmailAddress", StringType),
-                Property("Kind", StringType),
-                Property("LoginServer", StringType),
-                Property("Path", StringType),
-                Property("Server", StringType),
-                Property("Url", StringType),
-            )
-            ),
-        Property("ConnectionString", StringType),
-        Property("DatasourceId", StringType),
-        Property("DatasourceType", StringType),
-        Property("GatewayId", StringType),
-        Property("Name", StringType),
-
     ).to_dict()

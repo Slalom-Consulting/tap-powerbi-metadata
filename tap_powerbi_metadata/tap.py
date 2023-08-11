@@ -15,10 +15,8 @@ from tap_powerbi_metadata.streams import (
     ActivityEventsStream,
     AppsStream,
     GroupsStream,
-    GroupUsersStream,
-    DatasetUsersStream,
+    ReportsStream,
     DatasetStream,
-    DatasourcesStream
 )
 
 PLUGIN_NAME = "tap-powerbi-metadata"
@@ -27,10 +25,8 @@ STREAM_TYPES = [
     ActivityEventsStream,
     AppsStream,
     GroupsStream,
-    GroupUsersStream,
-    DatasetUsersStream,
+    ReportsStream,
     DatasetStream,
-    DatasourcesStream
 ]
 
 
