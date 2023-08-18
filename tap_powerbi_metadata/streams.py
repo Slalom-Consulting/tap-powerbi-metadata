@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, Optional
 from urllib import parse
 import requests
+import json
 
 
 from singer_sdk.streams import RESTStream
@@ -38,9 +39,84 @@ class OAuthActiveDirectoryAuthenticator(OAuthAuthenticator):
             'password': self.config["password"],
         }
 
-
 class TapPowerBIMetadataStream(RESTStream):
-    """PowerBIMetadata stream class."""
+    """Base class for PowerBIMetadata streams."""
+
+    url_base = "https://api.powerbi.com/v1.0/myorg"
+
+    #: Variables to indicate if the endpoint requires a $top and $skip value. Defaults to False
+    top_required = False
+    skip_required = False
+
+    #: Empty dictionary that can be used if the endpoint requires additional URI parameters.
+    #: Example: uri_parameters = {'$expand':'users,reports,dashboards,datasets,dataflows,workbooks'}
+    uri_parameters = {}
+
+    #: Integer that determines the $top and $skip values for the streams that use them
+    #: 5000 is the maximum amount. Shouldn't need to be changed unless a smaller size is required.
+    top_value = 5000
+
+    def parse_response(self, response: requests.Response) -> Iterable[dict]:
+        """Parse the response and return an iterator of result rows.
+        
+        Args:
+            response: A `requests.Response` object. 
+
+        Yields:
+            One item for every item found in the response.
+        
+        """
+        resp_json = response.json()
+        for row in resp_json.get("value"):
+            yield row
+    
+    @property
+    def authenticator(self) -> APIAuthenticatorBase:
+        return OAuthActiveDirectoryAuthenticator(
+            stream=self,
+            auth_endpoint=f"https://login.microsoftonline.com/{self.config['tenant_id']}/oauth2/token",
+            oauth_scopes="https://analysis.windows.net/powerbi/api",
+        )
+
+    def get_url_params(self, partition: Optional[dict], next_page_token: Optional[Any] = None) -> Dict[str, Any]:
+        """Return a dictionary of values to be used in URL parameterization.
+        
+
+        """
+        params = self.uri_parameters
+        if self.top_required:
+            params["$top"] = self.top_value
+        if next_page_token:
+            params["$skip"] = next_page_token
+        self.logger.info(params)
+        return params
+
+    def get_next_page_token(self, response: requests.Response, previous_token: Optional[Any] = None) -> Optional[Any]:
+        """Return token for identifying next page or None if not applicable.
+        
+        Args:
+            response: A `requests.Response` object.
+            previous_token: An integer that is the $skip value that was used in the previous request.
+
+        Returns:
+            Either a new next_page_token that is the sum of the previous_token and top_value
+            Or None if a $skip value is not required, or if the 'value' of the Response object is empty
+        """
+
+        if not self.skip_required:
+            return None
+        if not previous_token:
+            next_page_token = self.top_value
+        #if there is a previous_token, but there is not content in the Response object
+        elif not response.json().get('value'):
+            return None
+        else:
+            previous_token += self.top_value
+            next_page_token = previous_token
+        return next_page_token
+
+class TapPowerBIUsageStream(RESTStream):
+    """PowerBIUsage stream class."""
 
     url_base = "https://api.powerbi.com/v1.0/myorg"
 
@@ -110,8 +186,11 @@ class TapPowerBIMetadataStream(RESTStream):
         for row in resp_json.get("activityEventEntities"):
             yield row
 
+class ActivityEventsStream(TapPowerBIUsageStream):
+    """Returns a list of audit activity events for a tenant.
+    Docs: https://learn.microsoft.com/en-us/rest/api/power-bi/admin/get-activity-events
 
-class ActivityEventsStream(TapPowerBIMetadataStream):
+    """
     name = "ActivityEvents"
     path = "/admin/activityevents"
     primary_keys = ["Id"]
@@ -469,91 +548,237 @@ class ActivityEventsStream(TapPowerBIMetadataStream):
     ).to_dict()
 
 class AppsStream(TapPowerBIMetadataStream):
+    """Returns a list of apps in the organization.
+    Docs: https://learn.microsoft.com/en-us/rest/api/power-bi/admin/apps-get-apps-as-admin
+    Requires: The query parameter $top is required.
+    """
     name = "Apps"
     path = "/admin/apps"
-    primary_keys = ["Id"]
-    replication_key = "lastUpdate"
+    primary_keys = ["id"]
+    top_required = True
     schema = PropertiesList(
-        Property("Id", StringType),
-        Property("Description", StringType),
-        Property("LastUpdate", StringType),
-        Property("Name", StringType),
-        Property("PublishedBy", StringType),
-        Property("WorkspaceId", StringType),
+        Property("id", StringType),
+        Property("description", StringType),
+        Property("lastUpdate", StringType),
+        Property("name", StringType),
+        Property("publishedBy", StringType),
+        Property("workspaceId", StringType),
     ).to_dict()
 
 class ReportsStream(TapPowerBIMetadataStream):
+    """ Returns a list of reports for the organization.
+    Docs: https://learn.microsoft.com/en-us/rest/api/power-bi/admin/reports-get-reports-as-admin
+    """
     name = "Reports"
     path = "/admin/reports"
     primary_keys = ["Id"]
-    replication_key = "lastUpdate"
     schema = PropertiesList(
-        Property("Id", StringType),
-        Property("AppId", StringType),
-        Property("CreatedBy", StringType),
-        Property("CreatedDateTime", StringType),
-        Property("DatasetId", StringType),
-        Property("Description", StringType),
-        Property("EmbedUrl", StringType),
-        Property("ModifiedBy", StringType),
-        Property("ModifiedDateTime", StringType),
-        Property("Name", StringType),
-        Property("ReportType", StringType),
-        Property("WebUrl", StringType),
-        Property("WorkspaceId", StringType),
+        Property("id", StringType),
+        Property("appId", StringType),
+        Property("createdBy", StringType),
+        Property("createdDateTime", StringType),
+        Property("datasetId", StringType),
+        Property("description", StringType),
+        Property("embedUrl", StringType),
+        Property("modifiedBy", StringType),
+        Property("modifiedDateTime", StringType),
+        Property("name", StringType),
+        Property("reportType", StringType),
+        Property("webUrl", StringType),
+        Property("workspaceId", StringType),
     ).to_dict()
 
 class GroupsStream(TapPowerBIMetadataStream):
+    """ Returns a list of workspaces for the organization.
+    Docs: https://learn.microsoft.com/en-us/rest/api/power-bi/admin/groups-get-groups-as-admin#admindashboard
+
+    Requires: The query parameter $top is required.
+              Uses $expand to inline expand certain data types. 
+    """
     name = "Groups"
     path = "/admin/groups"
-    primary_keys = ["Id"]
-    replication_key = "lastUpdate"
+    primary_keys = ["id"]
+    top_required = True
+    skip_required = True
+    uri_parameters = {'$expand':'users,reports,dashboards,datasets,dataflows,workbooks'}
     schema = PropertiesList(
-        Property("Id", StringType),
-        Property("Description", StringType),
-        Property("LastUpdate", StringType),
-        Property("Name", StringType),
-        Property("PublishedBy", StringType),
-        Property("WorkspaceId", StringType),
-        Property("ArtifactObjectId", StringType),
+        Property("capacityId", StringType),
+        Property("dataflowStorageId", StringType),
+        Property("description", StringType),
+        Property("hasWorkspaceLevelSettings", BooleanType),
+        Property("id", StringType),
+        Property("isOnDedicatedCapacity", BooleanType),
+        Property("isReadOnly", BooleanType),
+        Property("logAnalyticsWorkspace", StringType),
+        Property("name", StringType),
+        Property("pipelineId", StringType),
+        Property("state", StringType),
+        Property("type", StringType),
+        Property(
+            "dashboards",
+            ArrayType(
+                ObjectType(
+                    Property("appId", StringType),
+                    Property("displayName", StringType),
+                    Property("embedUrl", StringType),
+                    Property("id", StringType),
+                    Property("isReadOnly", BooleanType),
+                    Property(
+                        "tiles", 
+                        ArrayType(
+                            ObjectType(
+                                Property("colSpan", IntegerType),
+                                Property("datasetId", StringType),
+                                Property("embedData", StringType),
+                                Property("embedUrl", StringType),
+                                Property("id", StringType),
+                                Property("reportId", StringType),
+                                Property("rowSpan", IntegerType),
+                                Property("title", StringType),
+                            )
+                        )
+                    ),
+                    Property("webUrl", StringType),
+                    Property("workspaceId", StringType),
+                )
+            )
+        ),
+        Property(
+            "dataflows",
+            ArrayType(
+                ObjectType(
+                    Property("configuredBy", StringType),
+                    Property("description", StringType),
+                    Property("modelUrl", StringType),
+                    Property("modifiedBy", StringType),
+                    Property("modifiedDateTime", StringType),
+                    Property("name", StringType),
+                    Property("objectId", StringType),
+                    Property("workspaceId", StringType),
+                )
+            )
+        ),
+        Property(
+            "datasets",
+            ArrayType(
+                ObjectType(
+                    Property("ContentProviderType", StringType),
+                    Property("CreateReportEmbedUrl", StringType),
+                    Property("CreatedDate", StringType),
+                    Property("Encryption", StringType),
+                    Property("IsEffectiveIdentityRequired", BooleanType),
+                    Property("IsEffectiveIdentityRolesRequired", BooleanType),
+                    Property("IsInPlaceSharingEnabled", BooleanType),
+                    Property("IsOnPremGatewayRequired", BooleanType),
+                    Property("IsRefreshable", BooleanType),
+                    Property("QnaEmbedUrl", StringType),
+                    Property("addRowsAPIEnabled", BooleanType),
+                    Property("configuredBy", StringType),
+                    Property("description", StringType),
+                    Property("id", StringType),
+                    Property("name", StringType),
+                    Property("queryScaleOutSettings", StringType),
+                    Property("targetStorageMode", StringType),
+                    Property(
+                        "upstreamDataflows",
+                        ArrayType(
+                            ObjectType(
+                                Property("groupId", StringType),
+                                Property("targetDataflowId", StringType),
+                            )
+                        )
+                    ),
+                    Property("webUrl", StringType),
+                    Property("workspaceId", StringType),
+                )
+            )
+        ),
+        Property(
+            "reports",
+            ArrayType(
+                ObjectType(
+                    Property("appId", StringType),
+                    Property("createdBy", StringType),
+                    Property("createdDateTime", StringType),
+                    Property("datasetId", StringType),
+                    Property("description", StringType),
+                    Property("embedUrl", StringType),
+                    Property("id", StringType),
+                    Property("modifiedBy", StringType),
+                    Property("modifiedDateTime", StringType),
+                    Property("name", StringType),
+                    Property("reportType", StringType),
+                    Property("webUrl", StringType),
+                    Property("workspaceId", StringType),
+                )
+            )
+        ),
+        Property(
+            "users",
+            ArrayType(
+                ObjectType(
+                    Property("displayName", StringType),
+                    Property("emailAddress", StringType),
+                    Property("graphId", StringType),
+                    Property("groupUserAccessRight", StringType),
+                    Property("identifier", StringType),
+                    Property("principalType", StringType),
+                    Property("profile", StringType),
+                    Property("userType", StringType),
+                )
+            )
+        ),
+        Property(
+            "workbooks",
+            ArrayType(
+                ObjectType(
+                    Property("name", StringType),
+                    Property("datasetId", StringType),
+                )
+            )
+        )
     ).to_dict()
 
 class DatasetStream(TapPowerBIMetadataStream):
+    """ Returns a list of datasets for the organization.
+    Docs: https://learn.microsoft.com/en-us/rest/api/power-bi/admin/datasets-get-datasets-as-admin
+    """
     name = "Dataset"
     path = "/admin/datasets"
-    primary_keys = ["Id"]
-    replication_key = "???"
+    primary_keys = ["id"]
+    # top_required = True
+    # skip_required = True
     schema = PropertiesList(
-        Property("ContentProviderType", StringType),
-        Property("CreateReportEmbedURL", StringType),
-        Property("CreatedDate", StringType),
-        Property("Encryption", StringType),
-        Property("IsEffectiveIdentityRequired", BooleanType),
-        Property("IsEffectiveIdentityRolesRequired", BooleanType),
-        Property("IsInPlaceSharingEnabled", BooleanType),
-        Property("IsOnPremGatewayRequired", BooleanType),
-        Property("IsRefreshable", BooleanType),
-        Property("QnaEmbedURL", StringType),
-        Property("AddRowsApiEnabled", BooleanType),
-        Property("ConfiguredBy", StringType),
-        Property("Description", StringType),
-        Property("Id", StringType),
-        Property("Name", StringType),
+        Property("contentProviderType", StringType),
+        Property("createReportEmbedURL", StringType),
+        Property("createdDate", StringType),
+        Property("encryption", StringType),
+        Property("isEffectiveIdentityRequired", BooleanType),
+        Property("isEffectiveIdentityRolesRequired", BooleanType),
+        Property("isInPlaceSharingEnabled", BooleanType),
+        Property("isOnPremGatewayRequired", BooleanType),
+        Property("isRefreshable", BooleanType),
+        Property("qnaEmbedURL", StringType),
+        Property("addRowsApiEnabled", BooleanType),
+        Property("configuredBy", StringType),
+        Property("description", StringType),
+        Property("id", StringType),
+        Property("name", StringType),
         Property(
             "QueryScaleOutSettings", 
             ObjectType(
-                Property("AutoSyncReadOnlyReplicas", BooleanType),
+                Property("autoSyncReadOnlyReplicas", BooleanType),
                 Property("maxReadOnlyReplicas", IntegerType),
             )
         ),
-        Property("TargetStorageMode", StringType),
+        Property("targetStorageMode", StringType),
         Property(
-            "UpstreamDataflows",
+            "upstreamDataflows",
             ObjectType(
-                Property("GroupID", StringType),
-                Property("TargetDataflowId", StringType)
+                Property("groupID", StringType),
+                Property("targetDataflowId", StringType)
             )
-        )
-        Property("WebUrl", StringType),
-        Property("WorkspaceId", StringType),
+        ),
+        Property("webUrl", StringType),
+        Property("workspaceId", StringType),
     ).to_dict()

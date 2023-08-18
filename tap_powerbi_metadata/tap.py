@@ -27,6 +27,7 @@ STREAM_TYPES = [
     GroupsStream,
     ReportsStream,
     DatasetStream,
+
 ]
 
 
