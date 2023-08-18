@@ -743,7 +743,7 @@ class DatasetStream(TapPowerBIMetadataStream):
     """ Returns a list of datasets for the organization.
     Docs: https://learn.microsoft.com/en-us/rest/api/power-bi/admin/datasets-get-datasets-as-admin
     """
-    name = "Dataset"
+    name = "Datasets"
     path = "/admin/datasets"
     primary_keys = ["id"]
     # top_required = True
