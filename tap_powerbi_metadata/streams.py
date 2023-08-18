@@ -571,7 +571,7 @@ class ReportsStream(TapPowerBIMetadataStream):
     """
     name = "Reports"
     path = "/admin/reports"
-    primary_keys = ["Id"]
+    primary_keys = ["id"]
     schema = PropertiesList(
         Property("id", StringType),
         Property("appId", StringType),
