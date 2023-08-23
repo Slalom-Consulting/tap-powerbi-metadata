@@ -580,10 +580,20 @@ class ReportsStream(TapPowerBIMetadataStream):
         Property("datasetId", StringType),
         Property("description", StringType),
         Property("embedUrl", StringType),
+        Property(
+            "endorsementDetails",
+            ObjectType(
+                Property("certifiedBy", StringType),
+                Property("endorsement", StringType),
+            )
+        ),
         Property("modifiedBy", StringType),
         Property("modifiedDateTime", StringType),
         Property("name", StringType),
+        Property("originalReportObjectId", StringType),
         Property("reportType", StringType),
+        # Property("users", StringType),
+        # Property("subscriptions", StringType),
         Property("webUrl", StringType),
         Property("workspaceId", StringType),
     ).to_dict()
