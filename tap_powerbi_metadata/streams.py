@@ -592,8 +592,6 @@ class ReportsStream(TapPowerBIMetadataStream):
         Property("name", StringType),
         Property("originalReportObjectId", StringType),
         Property("reportType", StringType),
-        # Property("users", StringType),
-        # Property("subscriptions", StringType),
         Property("webUrl", StringType),
         Property("workspaceId", StringType),
     ).to_dict()
@@ -797,7 +795,6 @@ class DatasetStream(TapPowerBIMetadataStream):
                 )
             )
         ),
-        # Property("users", StringType),
         Property("webUrl", StringType),
         Property("workspaceId", StringType),
     ).to_dict()
