@@ -752,20 +752,19 @@ class DatasetStream(TapPowerBIMetadataStream):
         Property("contentProviderType", StringType),
         Property("createReportEmbedURL", StringType),
         Property("createdDate", StringType),
-        Property("encryption", StringType),
         Property("isEffectiveIdentityRequired", BooleanType),
         Property("isEffectiveIdentityRolesRequired", BooleanType),
         Property("isInPlaceSharingEnabled", BooleanType),
         Property("isOnPremGatewayRequired", BooleanType),
         Property("isRefreshable", BooleanType),
         Property("qnaEmbedURL", StringType),
-        Property("addRowsApiEnabled", BooleanType),
+        Property("addRowsAPIEnabled", BooleanType),
         Property("configuredBy", StringType),
         Property("description", StringType),
         Property("id", StringType),
         Property("name", StringType),
         Property(
-            "QueryScaleOutSettings", 
+            "queryScaleOutSettings", 
             ObjectType(
                 Property("autoSyncReadOnlyReplicas", BooleanType),
                 Property("maxReadOnlyReplicas", IntegerType),
@@ -779,6 +778,16 @@ class DatasetStream(TapPowerBIMetadataStream):
                 Property("targetDataflowId", StringType)
             )
         ),
+        Property(
+            "upstreamDatasets",
+            ArrayType(
+                ObjectType(
+                    Property("DatasetId", StringType),
+                    Property("DatasetName", StringType),
+                )
+            )
+        ),
+        # Property("users", StringType),
         Property("webUrl", StringType),
         Property("workspaceId", StringType),
     ).to_dict()
