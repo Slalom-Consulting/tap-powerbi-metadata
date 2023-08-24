@@ -215,6 +215,26 @@ class ActivityEventsStream(TapPowerBIUsageStream):
         Property("AppName", StringType),
         Property("AppId", StringType),
         Property("AppReportId", StringType),
+        Property(
+            "ArtifactAccessRequestInfo",
+            ObjectType(
+                Property("AccessRequestAction", StringType),
+                Property("ArtifactLocationObjectId", StringType),
+                Property(
+                    "ArtifactOwnerInformation",
+                    ArrayType(
+                        ObjectType(
+                            Property("EmailAddress", StringType),
+                            Property("UserObjectId", StringType),
+                        )
+                    )
+                ),
+                Property("RequesterUserObjectId", StringType),
+                Property("RequestId", IntegerType),
+                Property("TenantObjectId", StringType),
+                Property("WorkspaceName", StringType),
+            )
+        ),
         Property("ArtifactId", StringType),
         Property("ArtifactKind", StringType),
         Property("ArtifactName", StringType),
@@ -347,6 +367,7 @@ class ActivityEventsStream(TapPowerBIUsageStream):
                 )
             )
         ),
+        Property("GatewayClustersObjectIds", ArrayType(StringType)),
         Property("GatewayId", StringType),
         Property("GatewayMemberId", StringType),
         Property("GatewayType", StringType),
@@ -401,6 +422,7 @@ class ActivityEventsStream(TapPowerBIUsageStream):
             )
         ),
         Property("OriginalOwner", StringType),
+        Property("PackageId", StringType),
         Property(
             "PaginatedReportDataSources",
             ArrayType(
@@ -429,6 +451,7 @@ class ActivityEventsStream(TapPowerBIUsageStream):
             )
         ),
         Property("RecordType", IntegerType),
+        Property("RefreshEnforcementPolicy", IntegerType),
         Property("RefreshType", StringType),
         Property("ReportCertificationStage", StringType),
         Property("ReportId", StringType),
@@ -446,6 +469,7 @@ class ActivityEventsStream(TapPowerBIUsageStream):
             )
         ),
         Property("ShareLinkId", StringType),
+        Property("ShareWithCurrentFilter", BooleanType),
         Property("SharingAction", StringType),
         Property(
             "SharingInformation",
@@ -457,6 +481,7 @@ class ActivityEventsStream(TapPowerBIUsageStream):
             )
         ),
         Property("SharingScope", StringType),
+        Property("SingleSignOnType", StringType),
         Property("SwitchState", StringType),
         Property(
             "SubscribeeInformation",
