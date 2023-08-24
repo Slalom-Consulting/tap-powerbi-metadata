@@ -635,11 +635,13 @@ class GroupsStream(TapPowerBIMetadataStream):
     skip_required = True
     uri_parameters = {'$expand':'users,reports,dashboards,datasets,dataflows,workbooks'}
     schema = PropertiesList(
-        Property("capacityId", StringType),
-        Property("dataflowStorageId", StringType),
-        Property("description", StringType),
-        Property("hasWorkspaceLevelSettings", BooleanType),
         Property("id", StringType),
+        Property("capacityId", StringType),
+        Property("capacityMigrationStatus", StringType),
+        Property("dataflowStorageId", StringType),
+        Property("defaultDatasetStorageFormat", StringType),
+        Property("description", StringType),
+        Property("hasWorkspaceLevelSettings ", BooleanType),
         Property("isOnDedicatedCapacity", BooleanType),
         Property("isReadOnly", BooleanType),
         Property("logAnalyticsWorkspace", StringType),
@@ -782,20 +784,20 @@ class DatasetStream(TapPowerBIMetadataStream):
     # top_required = True
     # skip_required = True
     schema = PropertiesList(
+        Property("id", StringType),
+        Property("addRowsAPIEnabled", BooleanType),
+        Property("configuredBy", StringType),
         Property("contentProviderType", StringType),
-        Property("createReportEmbedURL", StringType),
         Property("createdDate", StringType),
+        Property("createReportEmbedURL", StringType),
+        Property("description", StringType),
         Property("isEffectiveIdentityRequired", BooleanType),
         Property("isEffectiveIdentityRolesRequired", BooleanType),
         Property("isInPlaceSharingEnabled", BooleanType),
         Property("isOnPremGatewayRequired", BooleanType),
         Property("isRefreshable", BooleanType),
-        Property("qnaEmbedURL", StringType),
-        Property("addRowsAPIEnabled", BooleanType),
-        Property("configuredBy", StringType),
-        Property("description", StringType),
-        Property("id", StringType),
         Property("name", StringType),
+        Property("qnaEmbedURL", StringType),
         Property(
             "queryScaleOutSettings", 
             ObjectType(
