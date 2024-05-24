@@ -613,7 +613,7 @@ class DatasetStream(TapPowerBIMetadataStream):
             "datasetId": record["id"]
         }
     
-# Child Stream DataSources mustcome after Parent Stream Datasets
+# Child Stream DataSources must come after Parent Stream Datasets
 class DataSourceStream(TapPowerBIMetadataStream):
     """ Returns a list of datasets for the organization.
     Docs: https://learn.microsoft.com/en-us/rest/api/power-bi/admin/datasets-get-datasets-as-admin
