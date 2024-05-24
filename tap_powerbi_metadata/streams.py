@@ -159,7 +159,7 @@ class ActivityEventsStream(TapPowerBIUsageStream):
         Property("DeploymentPipelineId", IntegerType),
         Property("DeploymentPipelineObjectId", StringType),
         Property("DeploymentPipelineStageOrder", IntegerType),
-        Property("DetectCustomizationsRequest", StringType),
+        # Property("DetectCustomizationsRequest", ObjectType(),
         Property("DistributionMethod", StringType),
         Property("EmbedTokenId", StringType),
         Property("EndPoint", StringType),
@@ -374,7 +374,8 @@ class ActivityEventsStream(TapPowerBIUsageStream):
                 )
             )
         ),
-        Property("PinReportToTabInformation", 
+        Property(
+            "PinReportToTabInformation", 
             ObjectType(
                 Property("ChannelId", StringType),
                 Property("ChannelName", StringType),
@@ -390,7 +391,15 @@ class ActivityEventsStream(TapPowerBIUsageStream):
             )
         ),
         Property("PowerPlatformEnvironmentId", StringType),
-        Property("PowerPlatformSolutionRequest", StringType),
+        Property(
+            "PowerPlatformSolutionRequest",
+            ObjectType(
+                Property("DatasetIds", ArrayType(StringType)),
+                Property("EnvironmentId", StringType),
+                Property("FolderIds", ArrayType(StringType)),
+                Property("ReportIds", ArrayType(StringType)),
+            )
+        ),
         Property("RecordType", IntegerType),
         Property("RefreshEnforcementPolicy", IntegerType),
         Property("RefreshType", StringType),
