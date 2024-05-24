@@ -389,7 +389,7 @@ class ActivityEventsStream(TapPowerBIUsageStream):
                 Property("UserId", StringType),
             )
         ),
-        Property("PowerPlatformEnvironmentId", IntegerType),
+        Property("PowerPlatformEnvironmentId", StringType),
         Property("PowerPlatformSolutionRequest", StringType),
         Property("RecordType", IntegerType),
         Property("RefreshEnforcementPolicy", IntegerType),
@@ -552,41 +552,6 @@ class AppsStream(TapPowerBIMetadataStream):
         # Property("users", ArrayType(StringType)),
         Property("workspaceId", StringType),
     ).to_dict()
-    
-class DataSourceStream(TapPowerBIMetadataStream):
-    """ Returns a list of datasets for the organization.
-    Docs: https://learn.microsoft.com/en-us/rest/api/power-bi/admin/datasets-get-datasets-as-admin
-    """
-    name = "DataSources"
-    path = "/admin/datasets/{datasetId}/datasources"
-    primary_keys = ["datasetId","datasourceId"]
-    parent_stream_type = DatasetStream
-    # top_required = True
-    # skip_required = True
-    schema = PropertiesList(
-        Property(
-            "connectionDetails", 
-            ObjectType(
-                Property("account", StringType),
-                Property("classInfo", StringType),
-                Property("connectionString", StringType),
-                Property("database", StringType),
-                Property("domain", StringType),
-                Property("emailAddress", StringType),
-                Property("kind", StringType),
-                Property("loginServer", StringType),
-                Property("path", StringType),
-                Property("server", StringType),
-                Property("url", StringType),
-            )
-        ),
-        Property("connectionString", StringType),
-        Property("datasetId", StringType),
-        Property("datasourceId", StringType),
-        Property("datasourceType", StringType),
-        Property("gatewayId", StringType),
-        Property("name", StringType),
-    ).to_dict()
 
 class DatasetStream(TapPowerBIMetadataStream):
     """ Returns a list of datasets for the organization.
@@ -647,6 +612,42 @@ class DatasetStream(TapPowerBIMetadataStream):
         return {
             "datasetId": record["id"]
         }
+    
+# Child Stream DataSources mustcome after Parent Stream Datasets
+class DataSourceStream(TapPowerBIMetadataStream):
+    """ Returns a list of datasets for the organization.
+    Docs: https://learn.microsoft.com/en-us/rest/api/power-bi/admin/datasets-get-datasets-as-admin
+    """
+    name = "DataSources"
+    path = "/admin/datasets/{datasetId}/datasources"
+    primary_keys = ["datasetId","datasourceId"]
+    parent_stream_type = DatasetStream
+    # top_required = True
+    # skip_required = True
+    schema = PropertiesList(
+        Property(
+            "connectionDetails", 
+            ObjectType(
+                Property("account", StringType),
+                Property("classInfo", StringType),
+                Property("connectionString", StringType),
+                Property("database", StringType),
+                Property("domain", StringType),
+                Property("emailAddress", StringType),
+                Property("kind", StringType),
+                Property("loginServer", StringType),
+                Property("path", StringType),
+                Property("server", StringType),
+                Property("url", StringType),
+            )
+        ),
+        Property("connectionString", StringType),
+        Property("datasetId", StringType),
+        Property("datasourceId", StringType),
+        Property("datasourceType", StringType),
+        Property("gatewayId", StringType),
+        Property("name", StringType),
+    ).to_dict()
 
 class GroupsStream(TapPowerBIMetadataStream):
     """ Returns a list of workspaces for the organization.
