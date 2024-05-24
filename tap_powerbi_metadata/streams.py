@@ -552,49 +552,101 @@ class AppsStream(TapPowerBIMetadataStream):
         # Property("users", ArrayType(StringType)),
         Property("workspaceId", StringType),
     ).to_dict()
-
-class ReportsStream(TapPowerBIMetadataStream):
-    """ Returns a list of reports for the organization.
-    Docs: https://learn.microsoft.com/en-us/rest/api/power-bi/admin/reports-get-reports-as-admin
+    
+class DataSourceStream(TapPowerBIMetadataStream):
+    """ Returns a list of datasets for the organization.
+    Docs: https://learn.microsoft.com/en-us/rest/api/power-bi/admin/datasets-get-datasets-as-admin
     """
-    name = "Reports"
-    path = "/admin/reports"
+    name = "DataSources"
+    path = "/admin/datasets/{datasetId}/datasources"
+    primary_keys = ["datasetId","datasourceId"]
+    parent_stream_type = DatasetStream
+    # top_required = True
+    # skip_required = True
+    schema = PropertiesList(
+        Property(
+            "connectionDetails", 
+            ObjectType(
+                Property("account", StringType),
+                Property("classInfo", StringType),
+                Property("connectionString", StringType),
+                Property("database", StringType),
+                Property("domain", StringType),
+                Property("emailAddress", StringType),
+                Property("kind", StringType),
+                Property("loginServer", StringType),
+                Property("path", StringType),
+                Property("server", StringType),
+                Property("url", StringType),
+            )
+        ),
+        Property("connectionString", StringType),
+        Property("datasetId", StringType),
+        Property("datasourceId", StringType),
+        Property("datasourceType", StringType),
+        Property("gatewayId", StringType),
+        Property("name", StringType),
+    ).to_dict()
+
+class DatasetStream(TapPowerBIMetadataStream):
+    """ Returns a list of datasets for the organization.
+    Docs: https://learn.microsoft.com/en-us/rest/api/power-bi/admin/datasets-get-datasets-as-admin
+    """
+    name = "Datasets"
+    path = "/admin/datasets"
     primary_keys = ["id"]
+    # top_required = True
+    # skip_required = True
     schema = PropertiesList(
         Property("id", StringType),
-        Property("appId", StringType),
-        Property("createdBy", StringType),
-        Property("createdDateTime", StringType),
-        Property("datasetId", StringType),
+        Property("addRowsAPIEnabled", BooleanType),
+        Property("configuredBy", StringType),
+        Property("contentProviderType", StringType),
+        Property("createdDate", StringType),
+        Property("createReportEmbedURL", StringType),
         Property("description", StringType),
-        Property("embedUrl", StringType),
-        Property(
-            "endorsementDetails",
-            ObjectType(
-                Property("certifiedBy", StringType),
-                Property("endorsement", StringType),
-            )
-        ),
-        Property("modifiedBy", StringType),
-        Property("modifiedDateTime", StringType),
+        Property("isEffectiveIdentityRequired", BooleanType),
+        Property("isEffectiveIdentityRolesRequired", BooleanType),
+        Property("isInPlaceSharingEnabled", BooleanType),
+        Property("isOnPremGatewayRequired", BooleanType),
+        Property("isRefreshable", BooleanType),
         Property("name", StringType),
-        Property("originalReportObjectId", StringType),
-        Property("reportType", StringType),
-        # sections is empty
-        # Property("sections", ArrayType(StringType)),
+        Property("qnaEmbedURL", StringType),
         Property(
-            "sensitivityLabel",
+            "queryScaleOutSettings", 
             ObjectType(
-                Property("labelId", StringType),
+                Property("autoSyncReadOnlyReplicas", BooleanType),
+                Property("maxReadOnlyReplicas", IntegerType),
             )
         ),
-        # subscriptions is empty value in API Docs
-        # Property("subscriptions", ArrayType(StringType)),
-        # users  is empty value in API Docs
+        Property("targetStorageMode", StringType),
+        Property(
+            "upstreamDataflows",
+            ObjectType(
+                Property("groupID", StringType),
+                Property("targetDataflowId", StringType)
+            )
+        ),
+        Property(
+            "upstreamDatasets",
+            ArrayType(
+                ObjectType(
+                    Property("DatasetId", StringType),
+                    Property("DatasetName", StringType),
+                )
+            )
+        ),
+        # users is empty and will be removed in a future release
         # Property("users", ArrayType(StringType)),
         Property("webUrl", StringType),
         Property("workspaceId", StringType),
     ).to_dict()
+
+    def get_child_context(self, record: dict, context:Optional[dict]) -> dict:
+        """ Return a context dictionary for child streams."""
+        return {
+            "datasetId": record["id"]
+        }
 
 class GroupsStream(TapPowerBIMetadataStream):
     """ Returns a list of workspaces for the organization.
@@ -767,96 +819,45 @@ class GroupsStream(TapPowerBIMetadataStream):
         )
     ).to_dict()
 
-class DatasetStream(TapPowerBIMetadataStream):
-    """ Returns a list of datasets for the organization.
-    Docs: https://learn.microsoft.com/en-us/rest/api/power-bi/admin/datasets-get-datasets-as-admin
+class ReportsStream(TapPowerBIMetadataStream):
+    """ Returns a list of reports for the organization.
+    Docs: https://learn.microsoft.com/en-us/rest/api/power-bi/admin/reports-get-reports-as-admin
     """
-    name = "Datasets"
-    path = "/admin/datasets"
+    name = "Reports"
+    path = "/admin/reports"
     primary_keys = ["id"]
-    # top_required = True
-    # skip_required = True
     schema = PropertiesList(
         Property("id", StringType),
-        Property("addRowsAPIEnabled", BooleanType),
-        Property("configuredBy", StringType),
-        Property("contentProviderType", StringType),
-        Property("createdDate", StringType),
-        Property("createReportEmbedURL", StringType),
+        Property("appId", StringType),
+        Property("createdBy", StringType),
+        Property("createdDateTime", StringType),
+        Property("datasetId", StringType),
         Property("description", StringType),
-        Property("isEffectiveIdentityRequired", BooleanType),
-        Property("isEffectiveIdentityRolesRequired", BooleanType),
-        Property("isInPlaceSharingEnabled", BooleanType),
-        Property("isOnPremGatewayRequired", BooleanType),
-        Property("isRefreshable", BooleanType),
+        Property("embedUrl", StringType),
+        Property(
+            "endorsementDetails",
+            ObjectType(
+                Property("certifiedBy", StringType),
+                Property("endorsement", StringType),
+            )
+        ),
+        Property("modifiedBy", StringType),
+        Property("modifiedDateTime", StringType),
         Property("name", StringType),
-        Property("qnaEmbedURL", StringType),
+        Property("originalReportObjectId", StringType),
+        Property("reportType", StringType),
+        # sections is empty
+        # Property("sections", ArrayType(StringType)),
         Property(
-            "queryScaleOutSettings", 
+            "sensitivityLabel",
             ObjectType(
-                Property("autoSyncReadOnlyReplicas", BooleanType),
-                Property("maxReadOnlyReplicas", IntegerType),
+                Property("labelId", StringType),
             )
         ),
-        Property("targetStorageMode", StringType),
-        Property(
-            "upstreamDataflows",
-            ObjectType(
-                Property("groupID", StringType),
-                Property("targetDataflowId", StringType)
-            )
-        ),
-        Property(
-            "upstreamDatasets",
-            ArrayType(
-                ObjectType(
-                    Property("DatasetId", StringType),
-                    Property("DatasetName", StringType),
-                )
-            )
-        ),
-        # users is empty and will be removed in a future release
+        # subscriptions is empty value in API Docs
+        # Property("subscriptions", ArrayType(StringType)),
+        # users  is empty value in API Docs
         # Property("users", ArrayType(StringType)),
         Property("webUrl", StringType),
         Property("workspaceId", StringType),
-    ).to_dict()
-
-    def get_child_context(self, record: dict, context:Optional[dict]) -> dict:
-        """ Return a context dictionary for child streams."""
-        return {
-            "datasetId": record["id"]
-        }
-class DataSourceStream(TapPowerBIMetadataStream):
-    """ Returns a list of datasets for the organization.
-    Docs: https://learn.microsoft.com/en-us/rest/api/power-bi/admin/datasets-get-datasets-as-admin
-    """
-    name = "DataSources"
-    path = "/admin/datasets/{datasetId}/datasources"
-    primary_keys = ["datasetId","datasourceId"]
-    parent_stream_type = DatasetStream
-    # top_required = True
-    # skip_required = True
-    schema = PropertiesList(
-        Property(
-            "connectionDetails", 
-            ObjectType(
-                Property("account", StringType),
-                Property("classInfo", StringType),
-                Property("connectionString", StringType),
-                Property("database", StringType),
-                Property("domain", StringType),
-                Property("emailAddress", StringType),
-                Property("kind", StringType),
-                Property("loginServer", StringType),
-                Property("path", StringType),
-                Property("server", StringType),
-                Property("url", StringType),
-            )
-        ),
-        Property("connectionString", StringType),
-        Property("datasetId", StringType),
-        Property("datasourceId", StringType),
-        Property("datasourceType", StringType),
-        Property("gatewayId", StringType),
-        Property("name", StringType),
     ).to_dict()
