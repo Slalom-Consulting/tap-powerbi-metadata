@@ -21,8 +21,6 @@ from singer_sdk.typing import (
     StringType,
 )
 
-API_DATE_FORMAT = "'%Y-%m-%dT%H:%M:%SZ'"
-
 class ActivityEventsStream(TapPowerBIUsageStream):
     """Returns a list of audit activity events for a tenant.
     Docs: https://learn.microsoft.com/en-us/rest/api/power-bi/admin/get-activity-events
@@ -125,6 +123,17 @@ class ActivityEventsStream(TapPowerBIUsageStream):
             )
         ),
         Property("DatasourceId", StringType),
+        Property("DatasourceDetails", BooleanType),
+        Property("DatasourceInformations", ArrayType(
+                ObjectType(
+                    Property("CredentialType", StringType),
+                    Property("DatasourceObjectId", StringType),
+                    Property("DatasourceReference", StringType),
+                    Property("GatewayObjectId", StringType),
+                    Property("SingleSignOnType", StringType),
+                )
+            )
+        ),
         Property("DatasourceObjectIds", ArrayType(StringType)),
         Property("Datasources",  
             ArrayType(
@@ -139,7 +148,9 @@ class ActivityEventsStream(TapPowerBIUsageStream):
             "DeploymentPipelineAccesses",
             ArrayType(
                 ObjectType(
+                    Property("GroupObjectId", StringType),
                     Property("RolePermissions", StringType),
+                    Property("UserId", IntegerType),
                     Property("UserObjectId", StringType),
                 )
             )
@@ -148,8 +159,11 @@ class ActivityEventsStream(TapPowerBIUsageStream):
         Property("DeploymentPipelineId", IntegerType),
         Property("DeploymentPipelineObjectId", StringType),
         Property("DeploymentPipelineStageOrder", IntegerType),
+        # Property("DetectCustomizationsRequest", ObjectType(),
         Property("DistributionMethod", StringType),
+        Property("EmbedTokenId", StringType),
         Property("EndPoint", StringType),
+        Property("ExcludePersonalWorkspaces", BooleanType),
         Property("Experience", StringType),
         Property(
             "ExportedArtifactInfo",
@@ -175,7 +189,10 @@ class ActivityEventsStream(TapPowerBIUsageStream):
             "FolderAccessRequests",
             ArrayType(
                 ObjectType(
+                    Property("GroupId", IntegerType),
+                    Property("GroupObjectId", StringType),
                     Property("RolePermissions", StringType),
+                    Property("UserId", IntegerType),
                     Property("UserObjectId", StringType),
                 )
             )
@@ -204,9 +221,44 @@ class ActivityEventsStream(TapPowerBIUsageStream):
                 )
             )
         ),
+        Property(
+            "GatewayClusterDatasources",
+            ArrayType(
+                ObjectType(
+                    Property("clusterId", StringType),
+                    Property(
+                        "credentialDetails",
+                        ObjectType(
+                            Property("credentialType", StringType),
+                            Property("encryptedConnection", StringType),
+                            Property("encryptionAlgorithm", StringType),
+                            Property("isCredentialEncrypted", BooleanType),
+                            Property("privacyLevel", StringType),
+                            Property("skipTestConnection", BooleanType),
+                            Property("useCustomOAuthApp", BooleanType),
+                        )
+                    ),
+                    Property("credentialType", StringType),
+                    Property("datasourceName", StringType),
+                    Property("datasourceType", StringType),
+                    Property("gatewayClusterName", StringType),
+                    Property("id", StringType),
+                    Property(
+                        "users",
+                        ArrayType(
+                            ObjectType(
+                                Property("identifier", StringType),
+                            )
+                        )
+                    ),
+                )
+            )
+        ),
         Property("GatewayClustersObjectIds", ArrayType(StringType)),
         Property("GatewayId", StringType),
         Property("GatewayMemberId", StringType),
+        Property("GatewayName", StringType),
+        Property("GatewayStatus", StringType),
         Property("GatewayType", StringType),
         Property(
             "GenerateScreenshotInformation",
@@ -217,11 +269,53 @@ class ActivityEventsStream(TapPowerBIUsageStream):
                 Property("ScreenshotEngineType", IntegerType),
             )
         ),
+        Property(
+            "GitIntegrationRequest",
+            ObjectType(
+                Property(
+                    "AddedArtifacts",
+                    ArrayType(
+                        ObjectType(
+                            Property("LogicalId", StringType),
+                            Property("ObjectId", StringType),
+                        )
+                    )
+                ),
+                Property("BranchName", StringType),
+                Property(
+                    "DeletedArtifacts",
+                    ArrayType(
+                        ObjectType(
+                            Property("LogicalId", StringType),
+                            Property("ObjectId", StringType),
+                        )
+                    )
+                ),
+                Property("FromCommitId", StringType),
+                Property(
+                    "ModifiedArtifacts",
+                    ArrayType(
+                        ObjectType(
+                            Property("LogicalId", StringType),
+                            Property("ObjectId", StringType),
+                        )
+                    )
+                ),
+                Property("OrganizationName", StringType),
+                Property("ProjectName", StringType),
+                Property("RepositoryName", StringType),
+                Property("RootDirectory", StringType),
+                Property("ToCommitId", StringType),
+                Property("WorkspaceId", StringType),
+            )
+        ),
         Property("HasFullReportAttachment", BooleanType),
         Property("ImportDisplayName", StringType),
         Property("ImportId", StringType),
         Property("ImportSource", StringType),
         Property("ImportType", StringType),
+        Property("IncludeExpressions", BooleanType),
+        Property("IncludeSubartifacts", BooleanType),
         Property("InstallTeamsAnalyticsInformation",
             ObjectType(
                 Property("ModelId", StringType),
@@ -233,8 +327,10 @@ class ActivityEventsStream(TapPowerBIUsageStream):
         Property("IsTemplateAppFromMarketplace", BooleanType),
         Property("IsTenantAdminApi", BooleanType),
         Property("IsUpdateAppActivity", BooleanType),
+        Property("ItemId", StringType),
         Property("ItemName", StringType),
         Property("LastRefreshTime", StringType),
+        Property("Lineage", BooleanType),
         Property("MembershipInformation", 
             ArrayType(
                 ObjectType(
@@ -245,6 +341,12 @@ class ActivityEventsStream(TapPowerBIUsageStream):
         Property("MentionedUsersInformation", StringType),
         Property("ModelId", StringType),
         Property("ModelsSnapshots", ArrayType(IntegerType)),
+        Property(
+            "ModelSettings",
+            ObjectType(
+                    Property("DirectLakeAutoSync", BooleanType),
+                )
+        ),
         Property("Monikers", ArrayType(StringType)),
         Property("ObjectDisplayName", StringType),
         Property("ObjectId", StringType),
@@ -266,13 +368,14 @@ class ActivityEventsStream(TapPowerBIUsageStream):
                 ObjectType(
                     Property("connectionString", StringType),
                     Property("credentialRetrievalType", StringType),
-                    Property("", StringType),
+                    Property("dMMoniker", StringType),
                     Property("name", StringType),
                     Property("provider", StringType),
                 )
             )
         ),
-        Property("PinReportToTabInformation", 
+        Property(
+            "PinReportToTabInformation", 
             ObjectType(
                 Property("ChannelId", StringType),
                 Property("ChannelName", StringType),
@@ -287,6 +390,16 @@ class ActivityEventsStream(TapPowerBIUsageStream):
                 Property("UserId", StringType),
             )
         ),
+        Property("PowerPlatformEnvironmentId", StringType),
+        Property(
+            "PowerPlatformSolutionRequest",
+            ObjectType(
+                Property("DatasetIds", ArrayType(StringType)),
+                Property("EnvironmentId", StringType),
+                Property("FolderIds", ArrayType(StringType)),
+                Property("ReportIds", ArrayType(StringType)),
+            )
+        ),
         Property("RecordType", IntegerType),
         Property("RefreshEnforcementPolicy", IntegerType),
         Property("RefreshType", StringType),
@@ -296,6 +409,7 @@ class ActivityEventsStream(TapPowerBIUsageStream):
         Property("ReportType", StringType),
         Property("RequestId", StringType),
         Property("ResultStatus", StringType),
+        Property("RequiredWorkspaces", ArrayType(StringType)),
         Property(
             "Schedules",
             ObjectType(
@@ -305,6 +419,7 @@ class ActivityEventsStream(TapPowerBIUsageStream):
                 Property("TimeZone", StringType),
             )
         ),
+        Property("SensitivityLabelId", StringType),
         Property("ShareLinkId", StringType),
         Property("ShareWithCurrentFilter", BooleanType),
         Property("SharingAction", StringType),
@@ -312,14 +427,30 @@ class ActivityEventsStream(TapPowerBIUsageStream):
             "SharingInformation",
             ArrayType(
                 ObjectType(
+                    Property("ObjectId", StringType),
                     Property("RecipientEmail", StringType),
+                    Property("RecipientName", StringType),
                     Property("ResharePermission", StringType),
+                    Property("TenantObjectId", StringType),
+                    Property("UserPrincipalName", StringType),
                 )
             )
         ),
         Property("SharingScope", StringType),
         Property("SingleSignOnType", StringType),
-        Property("SwitchState", StringType),
+        Property("SubfolderId", IntegerType),
+        Property("SubfolderName", StringType),
+        Property("SubfolderObjectId", StringType),
+        Property(
+            "SubscriptionDetails",
+            ObjectType(
+                Property("attachmentType", StringType),
+                Property("isOnDemand", BooleanType),
+                Property("subject", StringType),
+                Property("subscriptionObjectId", StringType),
+                Property("title", StringType),
+            )
+        ),
         Property(
             "SubscribeeInformation",
             ArrayType(
@@ -348,6 +479,7 @@ class ActivityEventsStream(TapPowerBIUsageStream):
                 ),
             )
         ),
+        Property("SwitchState", StringType),
         Property("TableName", StringType),
         Property("TakingOverOwner", StringType),
         Property("TargetWorkspaceId", StringType),
@@ -406,6 +538,7 @@ class ActivityEventsStream(TapPowerBIUsageStream):
         ),
         Property("WorkspaceId", StringType),
         Property("WorkSpaceName", StringType),
+        Property("WorkspacesModifiedSince", StringType),
         Property("WorkspacesSemicolonDelimitedList", StringType),
     ).to_dict()
 
@@ -424,191 +557,9 @@ class AppsStream(TapPowerBIMetadataStream):
         Property("lastUpdate", StringType),
         Property("name", StringType),
         Property("publishedBy", StringType),
+        # users  is empty value in API Docs
+        # Property("users", ArrayType(StringType)),
         Property("workspaceId", StringType),
-    ).to_dict()
-
-class ReportsStream(TapPowerBIMetadataStream):
-    """ Returns a list of reports for the organization.
-    Docs: https://learn.microsoft.com/en-us/rest/api/power-bi/admin/reports-get-reports-as-admin
-    """
-    name = "Reports"
-    path = "/admin/reports"
-    primary_keys = ["id"]
-    schema = PropertiesList(
-        Property("id", StringType),
-        Property("appId", StringType),
-        Property("createdBy", StringType),
-        Property("createdDateTime", StringType),
-        Property("datasetId", StringType),
-        Property("description", StringType),
-        Property("embedUrl", StringType),
-        Property(
-            "endorsementDetails",
-            ObjectType(
-                Property("certifiedBy", StringType),
-                Property("endorsement", StringType),
-            )
-        ),
-        Property("modifiedBy", StringType),
-        Property("modifiedDateTime", StringType),
-        Property("name", StringType),
-        Property("originalReportObjectId", StringType),
-        Property("reportType", StringType),
-        Property("webUrl", StringType),
-        Property("workspaceId", StringType),
-    ).to_dict()
-
-class GroupsStream(TapPowerBIMetadataStream):
-    """ Returns a list of workspaces for the organization.
-    Docs: https://learn.microsoft.com/en-us/rest/api/power-bi/admin/groups-get-groups-as-admin#admindashboard
-
-    Requires: The query parameter $top is required.
-              Uses $expand to inline expand certain data types. 
-    """
-    name = "Groups"
-    path = "/admin/groups"
-    primary_keys = ["id"]
-    top_required = True
-    skip_required = True
-    uri_parameters = {'$expand':'users,reports,dashboards,datasets,dataflows,workbooks'}
-    schema = PropertiesList(
-        Property("id", StringType),
-        Property("capacityId", StringType),
-        Property("capacityMigrationStatus", StringType),
-        Property("dataflowStorageId", StringType),
-        Property("defaultDatasetStorageFormat", StringType),
-        Property("description", StringType),
-        Property("hasWorkspaceLevelSettings ", BooleanType),
-        Property("isOnDedicatedCapacity", BooleanType),
-        Property("isReadOnly", BooleanType),
-        Property("logAnalyticsWorkspace", StringType),
-        Property("name", StringType),
-        Property("pipelineId", StringType),
-        Property("state", StringType),
-        Property("type", StringType),
-        Property(
-            "dashboards",
-            ArrayType(
-                ObjectType(
-                    Property("appId", StringType),
-                    Property("displayName", StringType),
-                    Property("embedUrl", StringType),
-                    Property("id", StringType),
-                    Property("isReadOnly", BooleanType),
-                    Property(
-                        "tiles", 
-                        ArrayType(
-                            ObjectType(
-                                Property("colSpan", IntegerType),
-                                Property("datasetId", StringType),
-                                Property("embedData", StringType),
-                                Property("embedUrl", StringType),
-                                Property("id", StringType),
-                                Property("reportId", StringType),
-                                Property("rowSpan", IntegerType),
-                                Property("title", StringType),
-                            )
-                        )
-                    ),
-                    Property("webUrl", StringType),
-                    Property("workspaceId", StringType),
-                )
-            )
-        ),
-        Property(
-            "dataflows",
-            ArrayType(
-                ObjectType(
-                    Property("configuredBy", StringType),
-                    Property("description", StringType),
-                    Property("modelUrl", StringType),
-                    Property("modifiedBy", StringType),
-                    Property("modifiedDateTime", StringType),
-                    Property("name", StringType),
-                    Property("objectId", StringType),
-                    Property("workspaceId", StringType),
-                )
-            )
-        ),
-        Property(
-            "datasets",
-            ArrayType(
-                ObjectType(
-                    Property("ContentProviderType", StringType),
-                    Property("CreateReportEmbedUrl", StringType),
-                    Property("CreatedDate", StringType),
-                    Property("Encryption", StringType),
-                    Property("IsEffectiveIdentityRequired", BooleanType),
-                    Property("IsEffectiveIdentityRolesRequired", BooleanType),
-                    Property("IsInPlaceSharingEnabled", BooleanType),
-                    Property("IsOnPremGatewayRequired", BooleanType),
-                    Property("IsRefreshable", BooleanType),
-                    Property("QnaEmbedUrl", StringType),
-                    Property("addRowsAPIEnabled", BooleanType),
-                    Property("configuredBy", StringType),
-                    Property("description", StringType),
-                    Property("id", StringType),
-                    Property("name", StringType),
-                    Property("queryScaleOutSettings", StringType),
-                    Property("targetStorageMode", StringType),
-                    Property(
-                        "upstreamDataflows",
-                        ArrayType(
-                            ObjectType(
-                                Property("groupId", StringType),
-                                Property("targetDataflowId", StringType),
-                            )
-                        )
-                    ),
-                    Property("webUrl", StringType),
-                    Property("workspaceId", StringType),
-                )
-            )
-        ),
-        Property(
-            "reports",
-            ArrayType(
-                ObjectType(
-                    Property("appId", StringType),
-                    Property("createdBy", StringType),
-                    Property("createdDateTime", StringType),
-                    Property("datasetId", StringType),
-                    Property("description", StringType),
-                    Property("embedUrl", StringType),
-                    Property("id", StringType),
-                    Property("modifiedBy", StringType),
-                    Property("modifiedDateTime", StringType),
-                    Property("name", StringType),
-                    Property("reportType", StringType),
-                    Property("webUrl", StringType),
-                    Property("workspaceId", StringType),
-                )
-            )
-        ),
-        Property(
-            "users",
-            ArrayType(
-                ObjectType(
-                    Property("displayName", StringType),
-                    Property("emailAddress", StringType),
-                    Property("graphId", StringType),
-                    Property("groupUserAccessRight", StringType),
-                    Property("identifier", StringType),
-                    Property("principalType", StringType),
-                    Property("profile", StringType),
-                    Property("userType", StringType),
-                )
-            )
-        ),
-        Property(
-            "workbooks",
-            ArrayType(
-                ObjectType(
-                    Property("name", StringType),
-                    Property("datasetId", StringType),
-                )
-            )
-        )
     ).to_dict()
 
 class DatasetStream(TapPowerBIMetadataStream):
@@ -659,6 +610,8 @@ class DatasetStream(TapPowerBIMetadataStream):
                 )
             )
         ),
+        # users is empty and will be removed in a future release
+        # Property("users", ArrayType(StringType)),
         Property("webUrl", StringType),
         Property("workspaceId", StringType),
     ).to_dict()
@@ -668,6 +621,8 @@ class DatasetStream(TapPowerBIMetadataStream):
         return {
             "datasetId": record["id"]
         }
+    
+# Child Stream DataSources must come after Parent Stream Datasets
 class DataSourceStream(TapPowerBIMetadataStream):
     """ Returns a list of datasets for the organization.
     Docs: https://learn.microsoft.com/en-us/rest/api/power-bi/admin/datasets-get-datasets-as-admin
@@ -679,16 +634,240 @@ class DataSourceStream(TapPowerBIMetadataStream):
     # top_required = True
     # skip_required = True
     schema = PropertiesList(
-        Property("datasourceId", StringType),
-        Property("datasetId", StringType),
-        Property("name", StringType),
-        Property("connectionString", StringType),
-        Property("gatewayId", StringType),
         Property(
             "connectionDetails", 
             ObjectType(
-                Property("server", StringType),
+                Property("account", StringType),
+                Property("classInfo", StringType),
+                Property("connectionString", StringType),
                 Property("database", StringType),
+                Property("domain", StringType),
+                Property("emailAddress", StringType),
+                Property("kind", StringType),
+                Property("loginServer", StringType),
+                Property("path", StringType),
+                Property("server", StringType),
+                Property("url", StringType),
             )
         ),
+        Property("connectionString", StringType),
+        Property("datasetId", StringType),
+        Property("datasourceId", StringType),
+        Property("datasourceType", StringType),
+        Property("gatewayId", StringType),
+        Property("name", StringType),
+    ).to_dict()
+
+class GroupsStream(TapPowerBIMetadataStream):
+    """ Returns a list of workspaces for the organization.
+    Docs: https://learn.microsoft.com/en-us/rest/api/power-bi/admin/groups-get-groups-as-admin#admindashboard
+
+    Requires: The query parameter $top is required.
+              Uses $expand to inline expand certain data types. 
+    """
+    name = "Groups"
+    path = "/admin/groups"
+    primary_keys = ["id"]
+    top_required = True
+    skip_required = True
+    uri_parameters = {'$expand':'users,reports,dashboards,datasets,dataflows,workbooks'}
+    schema = PropertiesList(
+        Property("id", StringType),
+        Property("capacityId", StringType),
+        Property("capacityMigrationStatus", StringType),
+        Property("dataflowStorageId", StringType),
+        Property("defaultDatasetStorageFormat", StringType),
+        Property("description", StringType),
+        Property("hasWorkspaceLevelSettings ", BooleanType),
+        Property("isOnDedicatedCapacity", BooleanType),
+        Property("isReadOnly", BooleanType),
+        Property("logAnalyticsWorkspace", StringType),
+        Property("name", StringType),
+        Property("pipelineId", StringType),
+        Property("state", StringType),
+        Property("type", StringType),
+        # users is empty value in API Docs
+        # Property("users", ArrayType(StringType)),
+        Property(
+            "dashboards",
+            ArrayType(
+                ObjectType(
+                    Property("appId", StringType),
+                    Property("displayName", StringType),
+                    Property("embedUrl", StringType),
+                    Property("id", StringType),
+                    Property("isReadOnly", BooleanType),
+                    # subscriptions is empty value in API Docs
+                    # Property("subscriptions", ArrayType(StringType)),
+                    Property(
+                        "tiles", 
+                        ArrayType(
+                            ObjectType(
+                                Property("colSpan", IntegerType),
+                                Property("datasetId", StringType),
+                                Property("embedData", StringType),
+                                Property("embedUrl", StringType),
+                                Property("id", StringType),
+                                Property("reportId", StringType),
+                                Property("rowSpan", IntegerType),
+                                Property("title", StringType),
+                            )
+                        )
+                    ),
+                    # users is empty value in API Docs
+                    # Property("users", ArrayType(StringType)),
+                    Property("webUrl", StringType),
+                    Property("workspaceId", StringType),
+                )
+            )
+        ),
+        Property(
+            "dataflows",
+            ArrayType(
+                ObjectType(
+                    Property("configuredBy", StringType),
+                    Property("description", StringType),
+                    Property("generation", IntegerType),
+                    Property("modelUrl", StringType),
+                    Property("modifiedBy", StringType),
+                    Property("modifiedDateTime", StringType),
+                    Property("name", StringType),
+                    Property("objectId", StringType),
+                    # users is empty value in API Docs
+                    # Property("users", ArrayType(StringType)),
+                    Property("workspaceId", StringType),
+                )
+            )
+        ),
+        Property(
+            "datasets",
+            ArrayType(
+                ObjectType(
+                    Property("contentProviderType", StringType),
+                    Property("CreateReportEmbedUrl", StringType),
+                    Property("createdDate", StringType),
+                    Property("Encryption", StringType),
+                    Property("isEffectiveIdentityRequired", BooleanType),
+                    Property("isEffectiveIdentityRolesRequired", BooleanType),
+                    Property("isInPlaceSharingEnabled", BooleanType),
+                    Property("IsOnPremGatewayRequired", BooleanType),
+                    Property("isRefreshable", BooleanType),
+                    Property("QnaEmbedUrl", StringType),
+                    Property("addRowsAPIEnabled", BooleanType),
+                    Property("configuredBy", StringType),
+                    Property("description", StringType),
+                    Property("id", StringType),
+                    Property("name", StringType),
+                    Property("queryScaleOutSettings", StringType),
+                    Property("targetStorageMode", StringType),
+                    Property("upstreamDatasets", ArrayType(StringType)),
+                    Property(
+                        "upstreamDataflows",
+                        ArrayType(
+                            ObjectType(
+                                Property("groupId", StringType),
+                                Property("targetDataflowId", StringType),
+                            )
+                        )
+                    ),
+                    # users is empty value in API Docs
+                    # Property("users", ArrayType(StringType)),
+                    Property("webUrl", StringType),
+                    Property("workspaceId", StringType),
+                )
+            )
+        ),
+        Property(
+            "reports",
+            ArrayType(
+                ObjectType(
+                    Property("appId", StringType),
+                    Property("createdBy", StringType),
+                    Property("createdDateTime", StringType),
+                    Property("datasetId", StringType),
+                    Property("description", StringType),
+                    Property("embedUrl", StringType),
+                    Property("id", StringType),
+                    Property("modifiedBy", StringType),
+                    Property("modifiedDateTime", StringType),
+                    Property("name", StringType),
+                    Property("reportType", StringType),
+                    # sections is empty
+                    # Property("sections", ArrayType(StringType)),
+                    # subscriptions is empty value in API Docs
+                    # Property("subscriptions", ArrayType(StringType)),
+                    # users is empty value in API Docs
+                    # Property("users", ArrayType(StringType)),
+                    Property("webUrl", StringType),
+                    Property("workspaceId", StringType),
+                )
+            )
+        ),
+        Property(
+            "users",
+            ArrayType(
+                ObjectType(
+                    Property("displayName", StringType),
+                    Property("emailAddress", StringType),
+                    Property("graphId", StringType),
+                    Property("groupUserAccessRight", StringType),
+                    Property("identifier", StringType),
+                    Property("principalType", StringType),
+                    Property("profile", StringType),
+                    Property("userType", StringType),
+                )
+            )
+        ),
+        Property(
+            "workbooks",
+            ArrayType(
+                ObjectType(
+                    Property("name", StringType),
+                    Property("datasetId", StringType),
+                )
+            )
+        )
+    ).to_dict()
+
+class ReportsStream(TapPowerBIMetadataStream):
+    """ Returns a list of reports for the organization.
+    Docs: https://learn.microsoft.com/en-us/rest/api/power-bi/admin/reports-get-reports-as-admin
+    """
+    name = "Reports"
+    path = "/admin/reports"
+    primary_keys = ["id"]
+    schema = PropertiesList(
+        Property("id", StringType),
+        Property("appId", StringType),
+        Property("createdBy", StringType),
+        Property("createdDateTime", StringType),
+        Property("datasetId", StringType),
+        Property("description", StringType),
+        Property("embedUrl", StringType),
+        Property(
+            "endorsementDetails",
+            ObjectType(
+                Property("certifiedBy", StringType),
+                Property("endorsement", StringType),
+            )
+        ),
+        Property("modifiedBy", StringType),
+        Property("modifiedDateTime", StringType),
+        Property("name", StringType),
+        Property("originalReportObjectId", StringType),
+        Property("reportType", StringType),
+        # sections is empty
+        # Property("sections", ArrayType(StringType)),
+        Property(
+            "sensitivityLabel",
+            ObjectType(
+                Property("labelId", StringType),
+            )
+        ),
+        # subscriptions is empty value in API Docs
+        # Property("subscriptions", ArrayType(StringType)),
+        # users  is empty value in API Docs
+        # Property("users", ArrayType(StringType)),
+        Property("webUrl", StringType),
+        Property("workspaceId", StringType),
     ).to_dict()
