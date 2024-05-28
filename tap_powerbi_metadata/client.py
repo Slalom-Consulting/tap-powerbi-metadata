@@ -17,7 +17,7 @@ from singer_sdk.streams import RESTStream
 from tap_powerbi_metadata.auth import PowerBIMetadataAuthenticator
 # from tap_powerbi_metadata.schema import get_schema, get_type_schema
 
-API_URL = "https://graph.microsoft.com"
+API_URL = "https://api.powerbi.com/v1.0/myorg"
 API_DATE_FORMAT = "'%Y-%m-%dT%H:%M:%SZ'"
 
 class TapPowerBIMetadataStream(RESTStream):

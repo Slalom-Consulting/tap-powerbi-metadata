@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 
 from singer_sdk.authenticators import OAuthAuthenticator, SingletonMeta
 
-AUTH_URL = "TODO"
+AUTH_URL = "https://api.powerbi.com/v1.0/myorg"
     
 class PowerBIMetadataAuthenticator(OAuthAuthenticator, metaclass=SingletonMeta):
     # https://pivotalbi.com/automate-your-power-bi-dataset-refresh-with-python
