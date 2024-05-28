@@ -18,7 +18,8 @@ from tap_powerbi_metadata.streams import (
     GroupsStream,
     ReportsStream,
     DatasetStream,
-    DataSourceStream
+    # Commenting out DataSources stream because it is not ready to be extracte to Snowflake
+    # DataSourceStream
 )
 
 PLUGIN_NAME = "tap-powerbi-metadata"
@@ -29,7 +30,8 @@ STREAM_TYPES = [
     GroupsStream,
     ReportsStream,
     DatasetStream,
-    DataSourceStream,
+    # Commenting out DataSources stream because it is not ready to be extracte to Snowflake
+    # DataSourceStream,
 
 ]
 
