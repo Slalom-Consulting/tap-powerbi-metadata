@@ -259,7 +259,7 @@ class ActivityEventsStream(TapPowerBIUsageStream):
             )
         ),
         Property("OriginalOwner", StringType),
-        Property("PackageId", StringType),
+        Property("PackageId", IntegerType),
         Property(
             "PaginatedReportDataSources",
             ArrayType(
