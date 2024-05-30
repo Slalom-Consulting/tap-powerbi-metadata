@@ -8,6 +8,7 @@ from singer_sdk.typing import (
     PropertiesList,
     Property,
     StringType,
+    ObjectType
 )
 
 from tap_powerbi_metadata.streams import (
@@ -17,6 +18,8 @@ from tap_powerbi_metadata.streams import (
     GroupsStream,
     ReportsStream,
     DatasetStream,
+    # Commenting out DataSources stream because it is not ready to be extracte to Snowflake
+    # DataSourceStream
 )
 
 PLUGIN_NAME = "tap-powerbi-metadata"
@@ -27,6 +30,8 @@ STREAM_TYPES = [
     GroupsStream,
     ReportsStream,
     DatasetStream,
+    # Commenting out DataSources stream because it is not ready to be extracte to Snowflake
+    # DataSourceStream,
 
 ]
 
@@ -41,6 +46,13 @@ class TapPowerBIMetadata(Tap):
         Property("username", StringType, required=True),
         Property("password", StringType, required=True),
         Property("start_date", DateTimeType),
+        Property("stream_config", ObjectType(
+            Property(
+                "parameters",
+                StringType
+            )
+        )),
+        Property("stream_config_string", StringType)
     ).to_dict()
 
     def discover_streams(self) -> List[Stream]:
