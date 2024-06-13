@@ -21,6 +21,58 @@ from singer_sdk.typing import (
     StringType,
 )
 
+class RefreshablesStream(TapPowerBIMetadataStream):
+    """Returns a list of audit activity events for a tenant.
+    Docs: https://learn.microsoft.com/en-us/rest/api/power-bi/admin/get-activity-events
+
+    """
+    name = "Refreshables"
+    path = "/admin/capacities/refreshables"
+    primary_keys = ["Id"]
+    top_required = True
+    skip_required = True
+    # replication_key = "CreationTime"
+    schema = PropertiesList(
+        Property("id", StringType),
+        Property("name", StringType),
+        Property("kind", StringType),
+        Property("startTime", StringType),
+        Property("endTime", StringType),
+        Property("refreshCount", IntegerType),
+        Property("refreshFailures", IntegerType),
+        Property("averageDuration", NumberType),
+        Property("medianDuration", NumberType),
+        Property("refreshesPerDay", IntegerType),
+        Property("startTime", StringType),
+        Property(
+            "lastRefresh",
+            ObjectType(
+                Property("id", NumberType),
+                Property("serviceExceptionJson", StringType),
+                Property("extendedStatus", StringType),
+                Property("refreshAttempts", ArrayType(StringType), default = "None"),
+                Property("refreshType", StringType),
+                Property("startTime", StringType),
+                Property("endTime", StringType),
+                Property("status", StringType),
+                Property("requestId", StringType),
+            )
+        ),
+        Property(
+            "refreshSchedule",
+            ObjectType(
+                Property("days", ArrayType(StringType)),
+                Property("times", ArrayType(StringType)),
+                Property("enabled", BooleanType),
+                Property("localTimeZoneId", StringType),
+                Property("notifyOption", StringType),
+            )
+        ),
+        Property("enabled", BooleanType),
+        Property("localTimeZoneId", StringType),
+        Property("notifyOption", StringType),
+        # Property("configuredBy", ArrayType(StringType), default = "None")
+    ).to_dict()
 class ActivityEventsStream(TapPowerBIUsageStream):
     """Returns a list of audit activity events for a tenant.
     Docs: https://learn.microsoft.com/en-us/rest/api/power-bi/admin/get-activity-events
