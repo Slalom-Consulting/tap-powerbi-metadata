@@ -17,6 +17,7 @@ from tap_powerbi_metadata.streams import (
     AppsStream,
     GroupsStream,
     ReportsStream,
+    RefreshablesStream,
     DatasetStream,
     # Commenting out DataSources stream because it is not ready to be extracte to Snowflake
     # DataSourceStream
@@ -29,6 +30,7 @@ STREAM_TYPES = [
     AppsStream,
     GroupsStream,
     ReportsStream,
+    RefreshablesStream,
     DatasetStream,
     # Commenting out DataSources stream because it is not ready to be extracte to Snowflake
     # DataSourceStream,
