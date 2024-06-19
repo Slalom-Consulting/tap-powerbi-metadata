@@ -11,6 +11,7 @@ import json
 from tap_powerbi_metadata.client import TapPowerBIMetadataStream, TapPowerBIUsageStream
 from singer_sdk.typing import (
     ArrayType,
+    AnyType,
     BooleanType,
     DateTimeType,
     IntegerType,
@@ -71,7 +72,7 @@ class RefreshablesStream(TapPowerBIMetadataStream):
         Property("enabled", BooleanType),
         Property("localTimeZoneId", StringType),
         Property("notifyOption", StringType),
-        # Property("configuredBy", ArrayType(StringType), default = "None")
+        Property("configuredBy", ArrayType(AnyType))
     ).to_dict()
 class ActivityEventsStream(TapPowerBIUsageStream):
     """Returns a list of audit activity events for a tenant.

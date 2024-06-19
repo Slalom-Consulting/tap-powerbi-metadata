@@ -26,12 +26,12 @@ from tap_powerbi_metadata.streams import (
 PLUGIN_NAME = "tap-powerbi-metadata"
 
 STREAM_TYPES = [
-    # ActivityEventsStream,
-    # AppsStream,
-    # GroupsStream,
-    # ReportsStream,
+    ActivityEventsStream,
+    AppsStream,
+    GroupsStream,
+    ReportsStream,
     RefreshablesStream,
-    # DatasetStream,
+    DatasetStream,
     # Commenting out DataSources stream because it is not ready to be extracte to Snowflake
     # DataSourceStream,
 
