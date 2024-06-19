@@ -10,8 +10,8 @@ import json
 
 from tap_powerbi_metadata.client import TapPowerBIMetadataStream, TapPowerBIUsageStream
 from singer_sdk.typing import (
-    ArrayType,
     AnyType,
+    ArrayType,
     BooleanType,
     DateTimeType,
     IntegerType,
