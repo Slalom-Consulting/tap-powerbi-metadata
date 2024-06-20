@@ -29,7 +29,7 @@ class RefreshablesStream(TapPowerBIMetadataStream):
     """
     name = "Refreshables"
     path = "/admin/capacities/refreshables"
-    primary_keys = ["Id"]
+    primary_keys = ["id"]
     top_required = True
     skip_required = True
     # replication_key = "CreationTime"
