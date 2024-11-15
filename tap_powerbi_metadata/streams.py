@@ -681,7 +681,7 @@ class DataSourceStream(TapPowerBIMetadataStream):
     Docs: https://learn.microsoft.com/en-us/rest/api/power-bi/admin/datasets-get-datasets-as-admin
     """
     name = "DataSources"
-    path = "/myorg/datasets/{datasetId}/datasources"
+    path = "/admin/datasets/{datasetId}/datasources"
     primary_keys = ["datasetId","datasourceId"]
     parent_stream_type = DatasetStream
     # top_required = True
