@@ -147,7 +147,7 @@ class TapPowerBIUsageStream(RESTStream):
             starting_datetime = next_page_token["urlStartDate"]
             continuationToken = next_page_token.get("continuationToken")
         else:
-            starting_datetime = self.get_starting_timestamp(partition)
+            starting_datetime = self.get_starting_timestamp(partition).replace(microsecond=0)
             continuationToken = None
         if continuationToken:
             params["continuationToken"] = "'" + continuationToken + "'"
@@ -155,7 +155,6 @@ class TapPowerBIUsageStream(RESTStream):
             params.update({"startDateTime": starting_datetime.strftime(API_DATE_FORMAT)})
             ending_datetime = starting_datetime.replace(hour=0, minute=0, second=0) + timedelta(days=1) + timedelta(microseconds=-1)
             params.update({"endDateTime": ending_datetime.strftime(API_DATE_FORMAT)})
-        self.logger.debug(params)
         return params
 
     @property

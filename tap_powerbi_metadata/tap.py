@@ -19,7 +19,7 @@ from tap_powerbi_metadata.streams import (
     ReportsStream,
     RefreshablesStream,
     DatasetStream,
-    # Commenting out DataSources stream because it is not ready to be extracte to Snowflake
+    # Commenting out DataSources stream because it is not ready to be extracted to Snowflake
     # DataSourceStream
 )
 
@@ -32,7 +32,7 @@ STREAM_TYPES = [
     ReportsStream,
     RefreshablesStream,
     DatasetStream,
-    # Commenting out DataSources stream because it is not ready to be extracte to Snowflake
+    # Commenting out DataSources stream because it is not ready to be extracted to Snowflake
     # DataSourceStream,
 
 ]
