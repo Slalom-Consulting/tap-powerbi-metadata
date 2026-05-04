@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 from singer_sdk.authenticators import OAuthAuthenticator, SingletonMeta
 
 AUTH_URL = "https://api.powerbi.com/v1.0/myorg"
-    
+
 class PowerBIMetadataAuthenticator(OAuthAuthenticator, metaclass=SingletonMeta):
     # https://pivotalbi.com/automate-your-power-bi-dataset-refresh-with-python
 
@@ -19,11 +19,30 @@ class PowerBIMetadataAuthenticator(OAuthAuthenticator, metaclass=SingletonMeta):
             'username': self.config["username"],
             'password': self.config["password"],
         }
-    
+
     @property
     def auth_endpoint(self) -> str:
         base= "https://login.microsoftonline.com/"
         tenant = self.config['tenant_id']
         endpoint = f"/{tenant}/oauth2/token"
         # oauth_scopes="https://analysis.windows.net/powerbi/api",
+        return urljoin(base, endpoint)
+
+
+class PowerBIClientCredentialsAuthenticator(OAuthAuthenticator, metaclass=SingletonMeta):
+
+    @property
+    def oauth_request_body(self) -> dict:
+        return {
+            'grant_type': 'client_credentials',
+            'resource': 'https://analysis.windows.net/powerbi/api',
+            'client_id': self.config["client_id"],
+            'client_secret': self.config["client_secret"],
+        }
+
+    @property
+    def auth_endpoint(self) -> str:
+        base = "https://login.microsoftonline.com/"
+        tenant = self.config['tenant_id']
+        endpoint = f"/{tenant}/oauth2/token"
         return urljoin(base, endpoint)

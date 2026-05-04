@@ -14,7 +14,7 @@ import requests
 from memoization import cached
 from singer_sdk.streams import RESTStream
 
-from tap_powerbi_metadata.auth import PowerBIMetadataAuthenticator
+from tap_powerbi_metadata.auth import PowerBIClientCredentialsAuthenticator, PowerBIMetadataAuthenticator
 # from tap_powerbi_metadata.schema import get_schema, get_type_schema
 
 API_URL = "https://api.powerbi.com/v1.0/myorg"
@@ -67,7 +67,9 @@ class TapPowerBIMetadataStream(RESTStream):
             yield row
     
     @property
-    def authenticator(self) -> PowerBIMetadataAuthenticator:
+    def authenticator(self):
+        if self.config.get("auth_method") == "client_credentials":
+            return PowerBIClientCredentialsAuthenticator(self)
         return PowerBIMetadataAuthenticator(self)
     
     def get_url_params(self, partition: Optional[dict], next_page_token: Optional[Any] = None) -> Dict[str, Any]:
@@ -158,7 +160,9 @@ class TapPowerBIUsageStream(RESTStream):
         return params
 
     @property
-    def authenticator(self) -> APIAuthenticatorBase:
+    def authenticator(self):
+        if self.config.get("auth_method") == "client_credentials":
+            return PowerBIClientCredentialsAuthenticator(self)
         return PowerBIMetadataAuthenticator(
             stream=self,
             auth_endpoint=f"https://login.microsoftonline.com/{self.config['tenant_id']}/oauth2/token",
